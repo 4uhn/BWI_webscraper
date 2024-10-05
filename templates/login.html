@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>BWI Login</title>
+        <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&display=swap" rel="stylesheet">
+        <link href=" {{ url_for('static', filename='css/loginstyle.css') }} " rel="stylesheet">
+    </head>
+    <body>
+        <div class="container">
+            <div class="content">
+                <h1>BWI Login</h1>
+                <form id='loginForm'>
+                    <div>
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" name="username" required >
+                    </div>
+                    <div>
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" name="password" required >
+                    </div>
+                    <div class="button-container">
+                        <button id ="loginButton" type="submit" class="button">Login</button>
+                    </div>
+                </form>
+                <div id="errorMessage" class="error-message"></div>
+            </div>
+        </div>
+        <script src=" {{ url_for('static', filename='js/login.js') }} "></script>   
+    </body>
+</html>
