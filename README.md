@@ -4,9 +4,9 @@ This project is a web application that scrapes wine importer data from the Best 
 *Note : Login with your actual Best Wine Importer account details*
 
 ## Key Functionalities 
-* **Country and Origin Selection**: Users can select the country where the importer is located and the origin of the products.
+* **Country and Origin Selection**: Users can filter by the country where the importer is located and the origin of the products.
 
-* **Selectable Results** : Users can specify out of the 4 options provided the number of Importers to be extracted.
+* **Selectable Results** : Users can specify the number of importers to be extracted onto each sheet in the Excel file from the 4 options provided. (20,50,75,100)
 
 * **Data Scraped** : Company Name, General Phone Number, Email and Website Link.
 
@@ -15,8 +15,7 @@ This project is a web application that scrapes wine importer data from the Best 
 ## Work In Progress
 * Currently, the tool does not support more detailed data extraction.   
   
-  * Information available by individually clicking into each company, such as LinkedIn profiles.
+  * Further information are available by individually clicking into each company, such as LinkedIn profiles.
 
-* The scraper only extracts data visible on the initial results page. It does not automatically navigate through multiple pages of results yet.**
 
 Feel free to contribute if you come across this.

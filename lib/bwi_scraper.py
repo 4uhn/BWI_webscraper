@@ -1,5 +1,6 @@
 import pandas as pd
 import time
+from openpyxl import Workbook, load_workbook
 
 from bs4 import BeautifulSoup
 from flask import session
@@ -170,36 +171,79 @@ def extract_wine_data(wine_url, country, product_origin, result_count):
     except Exception as e:
         print(f"Failed to click filter button: {e}")
 
-
-
-    WebDriverWait(driver, 40).until(
-        EC.presence_of_element_located((By.ID, "bfi-table"))
-    )
-    print("Looking at table data....")
-
-    time.sleep(2)
-
-    soup = BeautifulSoup(driver.page_source, "html.parser")
-
-    bfi_table = soup.find("table", id="bfi-table")
-
     data = []
     headers = ["Company", "Phone", "General Email", "Website"]
+    page_num = 1
 
-    tbody = bfi_table.find("tbody")
-    rows = tbody.find_all("tr")
-
-    for row in rows:
-        cells = row.find_all("td")
-        if len(cells) >= 8:  
-            company = cells[2].text.strip()
-            phone = cells[3].text.strip()
-            email = cells[4].text.strip()
-            website = cells[7].text.strip()
-            data.append([company, phone, email, website])
-
-    df = pd.DataFrame(data, columns=headers)
     excel_filename = "wine_importers_data.xlsx"
-    df.to_excel(excel_filename, index=False)
+    
+    try:
+        workbook = load_workbook(excel_filename)
+    except:
+        workbook = Workbook()
+        workbook.remove(workbook.active)
 
+    while True:
+        WebDriverWait(driver, 20).until(
+            EC.presence_of_element_located((By.ID, "bfi-table"))
+        )
+        print("Looking at table data....")
+
+        time.sleep(2)
+
+        soup = BeautifulSoup(driver.page_source, "html.parser")
+
+        bfi_table = soup.find("table", id="bfi-table")
+
+        tbody = bfi_table.find("tbody")
+        rows = tbody.find_all("tr")
+
+        data = []
+        for row in rows:
+            cells = row.find_all("td")
+            if len(cells) >= 8:  
+                company = cells[2].text.strip()
+                phone = cells[3].text.strip()
+                email = cells[4].text.strip()
+                website = cells[7].text.strip()
+                data.append([company, phone, email, website])
+
+        df = pd.DataFrame(data, columns=headers)
+        sheet_name = f"Page {page_num}"
+
+        if sheet_name in workbook.sheetnames:
+            del workbook[sheet_name]
+
+        sheet = workbook.create_sheet(title=sheet_name)
+
+        for col, header in enumerate(headers, start=1):
+            sheet.cell(row=1, column=col, value=header)
+
+        for row_idx, row_data in enumerate(df.values, start=2):
+            for col_idx, value in enumerate(row_data, start=1):
+                sheet.cell(row=row_idx, column=col_idx, value=value)
+
+        workbook.save(excel_filename)
+        print(f"Data for page {page_num} saved to sheet '{sheet_name}'")
+
+        page_selector_container = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "bfi-table_paginate"))
+        )
+
+
+        page_selector_contaoner_span = page_selector_container.find_element(By.TAG_NAME, "span")
+        current_page_button = page_selector_contaoner_span.find_element(By.XPATH, f"//a[contains(@class, 'paginate_button') and contains(@class, 'current')]") 
+
+        try:
+            next_page_button = current_page_button.find_element(By.XPATH, f"following-sibling::a[contains(@class, 'paginate_button') and not(contains(@class, 'current'))][1]")
+            next_page_button.click()
+            time.sleep(2)
+            page_num += 1
+        except:
+            break
+
+    if "Sheet" in workbook.sheetnames:
+        del workbook["Sheet"]
+    workbook.save(excel_filename)
+    
     return excel_filename
